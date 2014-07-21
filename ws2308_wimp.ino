@@ -1,7 +1,10 @@
 /*
  Weather Station using WS2308/Electric Imp
- By: David Watts
- Date: July 15th, 2014
+ DWatts, July 15th, 2014
+ Adapted from code by Landoni Boris here:
+ http://www.open-electronics.org/how-to-connect-a-weather-station-ws2355-or-ws2300-to-weather-underground-with-arduino/
+ and code by Nathan Seidle here:
+ https://github.com/sparkfun/Wimp_Weather_Station/blob/master/Wimp_Weather_Station.ino
 */ 
  
 #include <Flash.h>
@@ -80,7 +83,6 @@
 #define LEDLOW digitalWrite(ledPin, LOW)
 #define ERRORHIGH digitalWrite(errorPin, HIGH)
 #define ERRORLOW digitalWrite(errorPin, LOW)
-
 
 //A weather station dec
 weather_data_t weatherWs2308 = { 
