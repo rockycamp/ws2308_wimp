@@ -1,9 +1,11 @@
 /*
  Weather Station using WS2308/Electric Imp
  DWatts, July 15th, 2014
- Adapted from code by Landoni Boris here:
+ Adapted from code by Landoni Boris:
  http://www.open-electronics.org/how-to-connect-a-weather-station-ws2355-or-ws2300-to-weather-underground-with-arduino/
- and code by Nathan Seidle here:
+ Kenneth Lavrsen:
+ http://www.lavrsen.dk/foswiki/bin/view/Open2300/WebHome
+ and code by Nathan Seidle:
  https://github.com/sparkfun/Wimp_Weather_Station/blob/master/Wimp_Weather_Station.ino
 */ 
  
@@ -26,7 +28,7 @@
 #endif
 
 // Program defines
-#define READWS_INTERVAL             120000
+#define READWS_INTERVAL             180000
 #define LED_INTERVAL                30000
 
 // ws2308 data lengths
@@ -178,9 +180,10 @@ void loop() {
     read_update = currentMillis;
   } 
 
-  // Read weather station cycle
+  // Read weather station cycle and send to imp
   if ((currentMillis - read_update) > READWS_INTERVAL){   
     weatherWs2308.lastReadErrors = readws(&weatherWs2308);
+    reportWeather(&weatherWs2308);
     read_update = currentMillis;
     weatherWs2308.windGust=0.0; // Reset max wind speed
     weatherWs2308.readError = 0x0000; // Reset errors
@@ -220,10 +223,10 @@ byte readws(weather_data_t* weatherData){
   byte error = 0;
   int time = 0;
   while (time<10) {
-    if (!((weatherWs2308.readError>>0)&0x1)) error+=!getUtc(&weatherWs2308);
-    if (!((weatherWs2308.readError>>4)&0x1)) error+=!getDate(&weatherWs2308);
+    //if (!((weatherWs2308.readError>>0)&0x1)) error+=!getUtc(&weatherWs2308);
+    //if (!((weatherWs2308.readError>>4)&0x1)) error+=!getDate(&weatherWs2308);
     if (!((weatherWs2308.readError>>8)&0x1)) error+=!getTempf(0,&weatherWs2308);
-    if (!((weatherWs2308.readError>>9)&0x1)) error+=!getTempf(1,&weatherWs2308);
+    //if (!((weatherWs2308.readError>>9)&0x1)) error+=!getTempf(1,&weatherWs2308);
     if (!((weatherWs2308.readError>>10)&0x1)) error+=!getHumidity(&weatherWs2308);
     if (!((weatherWs2308.readError>>11)&0x1)) error+=!getBaromhg(&weatherWs2308);
     if (!((weatherWs2308.readError>>12)&0x1)) error+=!getRainin(0,&weatherWs2308);
@@ -253,14 +256,16 @@ void reportWeather(weather_data_t* weatherData)
   Serial.print(weatherWs2308.humidity, 1);
   Serial.print(",tempf=");
   Serial.print(weatherWs2308.temp, 1);
-  Serial.print(",dewptf=");
-  Serial.print(weatherWs2308.dewPt, 1);  
+  //Serial.print(",dewptf=");
+  //Serial.print(weatherWs2308.dewPt, 1);  
   Serial.print(",rainin=");
   Serial.print(weatherWs2308.rain1hr, 2);
   Serial.print(",dailyrainin=");
   Serial.print(weatherWs2308.rain24hr, 2);
   Serial.print(",baromin=");
   Serial.print(weatherWs2308.barometer, 2);
+  Serial.print(",error=");
+  Serial.print(weatherWs2308.lastReadErrors);
   Serial.print(",");
   Serial.println("#,");
   
